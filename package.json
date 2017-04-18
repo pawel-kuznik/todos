@@ -1,0 +1,16 @@
+{
+  "name": "todos-cli",
+  "version": "1.0.0",
+  "description": "A simple app to create and list current todos",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "pawel.kuznik@gmail.com",
+  "license": "ISC",
+  "dependencies": {
+    "cliff": "^0.1.10",
+    "commander": "^2.9.0",
+    "crc": "^3.4.4"
+  }
+}

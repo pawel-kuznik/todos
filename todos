@@ -1,0 +1,104 @@
+#!/usr/bin/env node
+
+// dependecies
+var program = require('commander');
+var fs = require('fs');
+var cliff = require('cliff');
+var Todos = require('./Todos');
+var os = require('os');
+
+// determine where we want to store the todos
+var filePath = os.homedir() + '/.todos.json';
+
+// read data from the data.json
+var data = (function () {
+
+    // no data file?
+    if (!fs.existsSync(filePath)) {
+
+        // create the empty data file (so it's there for the next time and we know that todos were initialized)
+        fs.writeFileSync(filePath, JSON.stringify({ }), { encoding: 'utf8' });
+
+        // return empty data
+        return new Todos({ });
+    }
+
+    // read the whole file
+    var data = fs.readFileSync(filePath, 'utf8');
+
+    // return parsed data
+    return new Todos(JSON.parse(data));
+})();
+
+// start setting up the program
+program
+    .version('0.0.1');
+
+// add the list command
+program
+    .command('list')
+    .alias('ls')
+    .description('List all current todos.')
+    .action(function() {
+
+        // do we have todos?
+        if (data.empty()) {
+
+            // tell the user that there are no todos yet
+            console.log('No todos');
+
+            // we are done here
+            return;
+        }
+
+        // display the data
+        console.log(cliff.stringifyObjectRows(data.dataList(), [ 'id', 'state', 'title' ]));
+    });
+
+// add the add sub command
+program
+    .command('add <title>')
+    .alias('create')
+    .description('Create a new todo.')
+    .action(function (title) {
+
+        // push new todo to data
+        data.create(title);
+
+        // write the new todo to the data file
+        fs.writeFileSync(filePath, JSON.stringify(data.serialize()), { encoding: 'utf8' });
+    });
+
+// add the check command
+program
+    .command('check <id>')
+    .description('Check one of the todos as completed.')
+    .action(function (id) {
+
+        // check the todo
+        data.check(id);
+
+        // write the new todo to the data file
+        fs.writeFileSync(filePath, JSON.stringify(data.serialize()), { encoding: 'utf8' });
+    });
+
+// add the command to clear finished
+program
+    .command('clear')
+    .alias('empty')
+    .description('Clear all done todos.')
+    .action(function () {
+
+        // limit data
+        data = data.filter(function (todo) {
+
+            // notd one? can stay
+            return todo.state != 'done';
+        });
+
+        // write the new todo to the data file
+        fs.writeFileSync(filePath, JSON.stringify(data.serialize()), { encoding: 'utf8' });
+    });
+
+// parse the program
+program.parse(process.argv);

@@ -8,6 +8,7 @@ var Todos = require('./../src/Todos');
 var os = require('os');
 var child_process = require('child_process');
 var tty = require('tty');
+var pkg = require('../package.json');
 
 // determine where we want to store the todos
 var filePath = os.homedir() + '/.todos.json';
@@ -37,10 +38,13 @@ var data = (function () {
 
 // start setting up the program
 program
-    .version('0.1.0');
+    .version(pkg.version);
 
 // add the list command
 program
+    .command('list', 'List all current todos.')
+    .alias('ls');
+/*
     .command('list')
     .alias('ls')
     .description('List all current todos.')
@@ -72,6 +76,7 @@ program
         // display the data
         console.log(cliff.stringifyObjectRows(data.dataList(), fields));
     });
+    */
 
 // add the add sub command
 program
